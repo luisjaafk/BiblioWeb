@@ -6,10 +6,14 @@ use Illuminate\Http\Request;
 use App\Models\User; 
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Traits\HasRoles;
+
 
 
 class USerController extends Controller
 {
+        use HasRoles;
+
     /**
      * Display a listing of the resource.
      */

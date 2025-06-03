@@ -21,18 +21,35 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('books.index') }}">Libros</a>
+    @auth
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('books.index') }}">Libros</a>
+        </li>
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarUserDropdown" role="button" data-bs-toggle="dropdown">
+                {{ Auth::user()->name }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarUserDropdown">
+                <li>
+                    <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="dropdown-item">
+                            <i class="fas fa-sign-out-alt me-1"></i> Cerrar sesión
+                        </button>
+                    </form>
                 </li>
-                @guest
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('login') }}">Iniciar sesión</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('register') }}">Registrarse</a>
-                    </li>
-                @endguest
             </ul>
+        </li>
+    @else
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('login') }}">Iniciar sesión</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('register') }}">Registrarse</a>
+        </li>
+    @endauth
+</ul>
+
         </div>
     </div>
 </nav>

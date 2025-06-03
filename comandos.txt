@@ -1,0 +1,2 @@
+Siempre ejecutar : php artisan storage:link  
+

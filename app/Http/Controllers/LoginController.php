@@ -47,5 +47,13 @@ public function validateAccount($token)
 
     return redirect('/login')->with('success', 'Cuenta activada correctamente. Ya puedes iniciar sesión.');
 }
+public function logout(Request $request)
+{
+    Auth::logout();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    return redirect('/login');
+}
 
 }

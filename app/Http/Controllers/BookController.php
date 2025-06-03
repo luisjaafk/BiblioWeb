@@ -4,24 +4,50 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Book; 
+use Illuminate\Support\Facades\Http;
 
 class BookController extends Controller
 {
-    public function index()
-    {
-        $books = Book::query()
-            ->when(request('search'), function($query) {
-                return $query->where('title', 'like', '%'.request('search').'%')
-                             ->orWhere('author', 'like', '%'.request('search').'%')
-                             ->orWhere('isbn', 'like', '%'.request('search').'%');
-            })
-            ->when(request('status'), function($query) {
-                return $query->where('status', request('status'));
-            })
-            ->paginate(12);
+    public function index(Request $request)
+{
+    $search = $request->input('search');
+    $status = $request->input('status');
 
-        return view('books.index', compact('books'));
+    if ($search) {
+        // Consulta a Open Library
+        $response = Http::get("https://openlibrary.org/search.json", [
+            'q' => $search,
+            'limit' => 21
+        ]);
+
+        if ($response->successful()) {
+            $books = $response->json()['docs'] ?? [];
+        } else {
+            $books = [];
+        }
+
+        return view('books.results', compact('books'));
     }
+
+    // Consulta local (sin búsqueda externa)
+    $query = Book::query();
+
+    if ($status) {
+        $query->where('status', $status);
+    }
+
+    if ($search !== null) {
+        $query->where(function ($q) use ($search) {
+            $q->where('title', 'like', "%$search%")
+              ->orWhere('author', 'like', "%$search%")
+              ->orWhere('isbn', 'like', "%$search%");
+        });
+    }
+
+    $books = $query->latest()->paginate(9);
+
+    return view('books.index', compact('books'));
+}
 
     public function create()
     {
@@ -95,4 +121,15 @@ class BookController extends Controller
     {
         //
     }
+    public function searchFromAPI(Request $request)
+{
+    $query = $request->input('q');
+    $url = "https://openlibrary.org/search.json?q=" . urlencode($query);
+
+    $response = Http::get($url);
+    $books = $response->json()['docs'] ?? [];
+
+    return view('books.results', compact('books'));
+}
+
 }
