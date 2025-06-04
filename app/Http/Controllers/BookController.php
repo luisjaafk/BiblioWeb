@@ -77,9 +77,11 @@ class BookController extends Controller
 }
 
     public function show($id)
-    {
-        //
-    }
+{
+    $book = Book::findOrFail($id);
+    return view('books.show', compact('book'));
+}
+
 
     public function edit($id)
     {
